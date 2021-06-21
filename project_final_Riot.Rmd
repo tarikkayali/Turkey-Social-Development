@@ -3,7 +3,6 @@ title: "Turkey's Social Development"
 author: "Riot"
 date: "`r Sys.Date()`"
 output: html_document
-fontsize: 30pt
 ---
 \begin{center}
 Tarık Kayalı - Yusuf Emre Bayat
@@ -156,7 +155,8 @@ data_school_env <- data_school_env %>%
 
 ```{r, warning=FALSE, message=FALSE}
 lit_rate = head(data, 17) # Subsetting for literacy rate data.
-lit_rate <- lit_rate %>% mutate(score = ((3*(score-0.75207))/(1-0.75207))) # scaling range of geom_line
+lit_rate <- lit_rate %>% mutate(score = ((3*(score-0.75207))/(1-0.75207))) 
+# scaling range of geom_line
 
 ggplot() +
   aes(x = date, y = score, fill = name, colour = name) +
@@ -171,8 +171,7 @@ ggplot() +
   labs(
     x = "Years",
     y = "Score",
-    title = "School Enrollment in Years",
-    caption = "Graphic 1"
+    title = "School Enrollment in Years"
   ) +
   ggplot2::annotate("text", x=2016, y=3.1, label= "Literacy Rate", colour = "#BF1363") +
   theme_minimal() +
@@ -186,8 +185,8 @@ ggplot() +
     plot.caption = element_text(hjust = 0),
     axis.title.y = element_text(face = "bold"),
     axis.title.x = element_text(face = "bold"),
-    legend.title = element_blank()
-  ) 
+    legend.title = element_text()
+  ) + guides(fill=guide_legend(title="Fig 1: "))
 ```
 \newline
 \newline
@@ -226,9 +225,8 @@ lifeexpectancy_male <- lifeexpectancy  %>%
 lifeexpectancy %>%
   ggplot( aes(x=date, y=score, group=words, color=words)) +
   geom_line() +
-  scale_color_viridis(discrete = TRUE) +
   labs(title = "Life Expectancy", x = "Year", y ="Life Span") +
-  scale_colour_manual(values = c("#F44D5C", "#1E8FCB")) +
+  scale_colour_manual(name = "Fig 2: ", values = c("#F44D5C", "#1E8FCB")) +
   theme_minimal() +
   theme( 
     plot.title = element_text(
@@ -240,7 +238,6 @@ lifeexpectancy %>%
     plot.caption = element_text(hjust = 0),
     axis.title.y = element_text(face = "bold"),
     axis.title.x = element_text(face = "bold"),
-    legend.title = element_blank()
 )
 ```
 \newline
@@ -280,7 +277,10 @@ vul_employment <- vul_employment %>%
                             vul_employment$id >= 559 ~ "Male"))
   
                                             
-labs <- c("Female Unemployment (standardized)", "Male Unemployment (standardized)", "Female Vulnerable Employment (standardized)", "Male Vulnerable Employment (standardized)")
+labs <- c("Female Unemployment", 
+          "Male Unemployment", 
+          "Female Vulnerable Employment", 
+          "Male Vulnerable Employment")
 
 names(labs) <- c("Unemployment, female (% of female labor force) (modeled ILO estimate)", 
 "Unemployment, male (% of male labor force) (modeled ILO estimate)",
@@ -291,7 +291,7 @@ ggplot( vul_employment , aes(x=date, y=score, color = gender)) +
   geom_line() +  
   facet_wrap(~indicator.name, labeller = labeller(indicator.name = labs)) + # faceting
   theme_minimal() +
-  labs(x = "Year", y ="Percentage") +
+  labs(x = "Year", y ="Percentage", caption = "Fig 3") +
   theme(legend.position="none",
         plot.title = element_text(
       size = 15L,
@@ -321,7 +321,7 @@ unemployment %>%
   geom_line() +
   scale_color_viridis(discrete = TRUE) +
   labs(title = "Unemployment", x = "Year", y ="Unemployment %")+
-  scale_colour_manual(values = c("#F44D5C", "#1E8FCB")) +
+  scale_colour_manual(values = c("#F44D5C", "#1E8FCB"), name = "Fig 4: ") +
   theme_minimal() +
   theme( 
     plot.title = element_text(
@@ -333,7 +333,6 @@ unemployment %>%
     plot.caption = element_text(hjust = 0),
     axis.title.y = element_text(face = "bold"),
     axis.title.x = element_text(face = "bold"),
-    legend.title = element_blank()
 )
 
 ```
@@ -353,20 +352,21 @@ laborforce <- df %>%
 
 laborforce  <- laborforce  %>% 
   mutate(words = case_when(laborforce$id <= 319 ~ " 14-25 Age Laborforce Female",
-                           laborforce$id >= 320 & laborforce$id <= 349  ~ "14-25 Age Laborforce Male",
-                           laborforce$id >= 350 & laborforce$id <= 379 ~ "14-25 age Total",
-                           laborforce$id >= 380 & laborforce$id <= 409 ~ "15-64 Age Laborforce Female",
-                           laborforce$id >= 410 & laborforce$id <= 439 ~ "15-64 Age Laborforce Male",
-                           laborforce$id >= 440 & laborforce$id <= 469 ~ "15-64 Age Laborforce Total",
-                           laborforce$id >= 470 & laborforce$id <= 499 ~ "Laborforce Female Total",
-                           laborforce$id >= 500 ~ "Laborforce Male Total"))
+                        laborforce$id >= 320 & laborforce$id <= 349  ~ "14-25 Age Laborforce Male",
+                        laborforce$id >= 350 & laborforce$id <= 379 ~ "14-25 age Total",
+                        laborforce$id >= 380 & laborforce$id <= 409 ~ "15-64 Age Laborforce Female",
+                        laborforce$id >= 410 & laborforce$id <= 439 ~ "15-64 Age Laborforce Male",
+                        laborforce$id >= 440 & laborforce$id <= 469 ~ "15-64 Age Laborforce Total",
+                        laborforce$id >= 470 & laborforce$id <= 499 ~ "Laborforce Female Total",
+                        laborforce$id >= 500 ~ "Laborforce Male Total"))
 
 # Visualizing by using ggplot
 laborforce %>%
   ggplot( aes(x=date, y=score, group=words, color=words)) +
   geom_line() +
-  labs(title = "Laborforce Rate", x = "Year", y ="Rate %")+
-  scale_colour_manual(values = c("#F44D5C", "#1E8FCB","#01937C","#E798AE", "#04009A","#064420","#FFBBCC","#77ACF1" )) +
+  labs(title = "Laborforce Rate", x = "Year", y ="Rate %", caption = "Fig 5")+
+  scale_colour_manual(values = c("#F44D5C", "#1E8FCB","#01937C","#E798AE", 
+                                 "#04009A","#064420","#FFBBCC","#77ACF1" )) +
   theme_minimal() +
   theme( 
       legend.text = element_text(size = 8),
@@ -378,10 +378,10 @@ laborforce %>%
     plot.caption = element_text(hjust = 0),
     axis.title.y = element_text(face = "bold"),
     axis.title.x = element_text(face = "bold"),
-    legend.title = element_blank()
 )
 
 ```
+
 
 
 ### Results and Discussion on Labor Force
@@ -390,9 +390,9 @@ laborforce %>%
 
 \newpage
 
-# Codes For Refugee Population Graph
 
-```{r, warning=F}
+
+```{r, echo=F,warning=F}
 refugee <- df %>%
   filter(df$words == "Refugee Population") 
 refugee  <- refugee  %>% mutate(words = case_when(refugee$id <= 647 ~ "Asylum", refugee$id >= 648  ~ "Origin"))
@@ -401,7 +401,7 @@ refugee %>%
   ggplot( aes(x=date, y=score, group=words, color=words)) +
   geom_line() +
   labs(title = "Refugee Population", x = "Year", y ="Refugee Population")+
-  scale_colour_manual(values = c("#222831", "#00ADB5")) +
+  scale_colour_manual(values = c("#222831", "#00ADB5"), name= "Fig 6: ") +
   theme_minimal() +
   theme( 
     legend.text = element_text(size = 8),
@@ -414,7 +414,6 @@ refugee %>%
     plot.caption = element_text(hjust = 0),
     axis.title.y = element_text(face = "bold"),
     axis.title.x = element_text(face = "bold"),
-    legend.title = element_blank()
 )
 ```
 
@@ -422,7 +421,6 @@ refugee %>%
 
   While the asylum-seeking refugee population was progressing in its normal course, the intense refugee influx that started in 2011 caused a sharp increase in the number of refugees in the country. Since the war situation in Syria has not ended, the number of refugees has increased over the years.
 
-\newpage
 
 
 # Codes For 'Woman in Parliaments' Chart
@@ -436,7 +434,7 @@ ggplot(womeninparliaments, aes(x=date, y=score)) +
   geom_point(size=1.5, color="#FF7171") +
     theme_minimal() +
   scale_color_viridis(discrete = TRUE) +
-  labs(title = "Woman in Parliaments", x = "Year", y ="Rate %")+
+  labs(title = "Woman in Parliaments", x = "Year", y ="Rate %", caption = "Fig 7")+
   theme( legend.text = element_text(size = 8),
     legend.position="bottom",
         plot.title = element_text(
@@ -447,7 +445,6 @@ ggplot(womeninparliaments, aes(x=date, y=score)) +
     plot.caption = element_text(hjust = 0),
     axis.title.y = element_text(face = "bold"),
     axis.title.x = element_text(face = "bold"),
-    legend.title = element_blank()
     )
 ```
 
@@ -475,6 +472,7 @@ ggplot(womeninparliaments, aes(x=date, y=score)) +
 \end{tabular}
 
 \
+
 \newpage
 
 # Actions Taken
@@ -493,15 +491,17 @@ We assigned an ID for each row to make our job easier. After that we simplified 
 
 ### Visualizing  
 
-- Graph 1:  Stacked area graph used for visualizing ‘School Enrollment in Years’ graph. Also, for a better aestethic we used RColorbrewer library palettes. 
+- Fig 1:  Stacked area graph used for visualizing ‘School Enrollment in Years’ graph. Also, created a line for showing how literacy rate changed over years. For a better aestethic we used RColorbrewer library palettes. 
 
-- Graph 2: We used multi groups line chart with ggplot2 library for visualizing both female and male ‘Life Expactancy’. 
+- Fig 2: We used multi groups line chart with ggplot2 library for visualizing both female and male ‘Life Expactancy’. 
 
-- Graph 3: We used multi groups line chart with ggplot2 library for visualizing both female and male ‘Unemployment Rate’.
+- Fig 3: We created faceted line-graph for visualizing the change the vulnerable employment and unemployment rates over years.
 
+- Fig 4: We made a multi group line chart using Unemployment rate on the y-axis to see the details about this data.
 
+- Fig 5: Multi group line charted used to show Laborforce Rate in different ages and genders. Used a spesific color palette that represents the variable best.
 
-
+- Fig 7: We used a basic stacked are chart to represent Women in Parliaments data. geom_area, geom_point and geom_line functions used together to have a better aestethic.
 
 
 # Conclusion
